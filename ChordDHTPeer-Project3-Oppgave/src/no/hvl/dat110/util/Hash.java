@@ -36,7 +36,9 @@ public class Hash {
 
 		// convert the hex into BigInteger
 
-			hashint = new BigInteger(hashed);
+			hashint = new BigInteger(hashed, 16);
+
+
 
 		// return the BigInteger
 
