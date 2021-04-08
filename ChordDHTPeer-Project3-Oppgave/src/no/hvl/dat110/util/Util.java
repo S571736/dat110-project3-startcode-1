@@ -44,7 +44,17 @@ public class Util {
 		// implement: read the descriptions above
 		boolean cond = false;
 
-		
+		// check the rule: lower <= id <= upper
+		if(lower.compareTo(upper) > 0){
+			upper = upper.add(Hash.addressSize());
+			id = id.add(Hash.addressSize());
+		}
+
+		if((id.compareTo(lower) >= 0) && (id.compareTo(upper) <=0)){
+			cond = true;
+
+		}
+
 		return cond;
 	}
 	
