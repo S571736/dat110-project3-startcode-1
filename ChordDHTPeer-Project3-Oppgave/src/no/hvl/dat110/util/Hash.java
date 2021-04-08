@@ -14,17 +14,31 @@ import java.security.NoSuchAlgorithmException;
 
 public class Hash { 
 	
-	private static BigInteger hashint; 
-	
+	private static BigInteger hashint;
+
+	private static MessageDigest md5;
+
+	{
+		try {
+			md5 = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static BigInteger hashOf(String entity) {		
 		
-		try {
+
 		// Task: Hash a given string using MD5 and return the result as a BigInteger.
 
 		// we use MD5 with 128 bits digest
-			MessageDigest md5 = MessageDigest.getInstance("MD5");
+		try {
+			md5 = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 
-			md5.update(entity.getBytes()); // 128?
+		md5.update(entity.getBytes()); // 128?
 
 		// compute the hash of the input 'entity'
 
@@ -42,9 +56,7 @@ public class Hash {
 
 		// return the BigInteger
 
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
+
 
 		return hashint;
 	}
@@ -57,9 +69,12 @@ public class Hash {
 
 		// get the digest length
 		try {
-			MessageDigest digest = MessageDigest.getInstance("MD5");
+			md5 = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 
-			length = digest.getDigestLength();
+		length = md5.getDigestLength();
 
 		// compute the number of bits = digest length * 8
 			length = length * 8;
@@ -70,17 +85,21 @@ public class Hash {
 
 		// return the address size
 
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
+
 		return size;
 	}
 
 	public static int bitSize() {
 		
 		int digestlen = 0;
-		
-		// find the digest length
+
+		try {
+			md5 = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+
+		digestlen = md5.getDigestLength();
 		
 		return digestlen*8;
 	}
