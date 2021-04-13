@@ -44,18 +44,17 @@ public class Util {
 		// implement: read the descriptions above
 		boolean cond = false;
 
+
+		BigInteger n = upper;
 		if (lower.compareTo(upper) > 0){
-			upper = upper.add(Hash.addressSize());
-			if (id.compareTo(lower) < 0) {
+			n = upper.add(Hash.addressSize());
+			if (id.compareTo(upper) <= 0) {
 				id = id.add(Hash.addressSize());
 			}
 		}
+		upper = n;
 
-		if (id.compareTo(lower) >= 0 && id.compareTo(upper) <= 0){
-			cond = true;
-		}
-
-		return cond;
+		return lower.compareTo(id) <= 0 && id.compareTo(upper) <= 0;
 	}
 	
 	public static List<String> toString(List<NodeInterface> list) throws RemoteException {
