@@ -6,6 +6,9 @@ package no.hvl.dat110.util;
  * dat110 - project 3
  */
 
+import no.hvl.dat110.middleware.Message;
+import no.hvl.dat110.rpc.interfaces.NodeInterface;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,10 +20,6 @@ import java.text.NumberFormat;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-
-import no.hvl.dat110.middleware.Message;
-import no.hvl.dat110.rpc.interfaces.NodeInterface;
-import no.hvl.dat110.util.Hash;
 
 public class FileManager {
 
@@ -160,8 +159,14 @@ public class FileManager {
         // Task: Given a filename, find all the peers that hold a copy of this file
 
         // generate the N replicas from the filename by calling createReplicaFiles()
-
+        createReplicaFiles();
         // it means, iterate over the replicas of the file
+        for (BigInteger replica : replicafiles) {
+
+            NodeInterface s = chordnode.findSuccessor(replica);
+
+            succinfo.add(s.getFilesMetadata(replica));
+        }
 
         // for each replica, do findSuccessor(replica) that returns successor s.
 
