@@ -3,15 +3,14 @@
  */
 package no.hvl.dat110.middleware;
 
-import java.math.BigInteger;
+import no.hvl.dat110.rpc.interfaces.NodeInterface;
+import no.hvl.dat110.util.LamportClock;
+import no.hvl.dat110.util.Util;
+
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import no.hvl.dat110.rpc.interfaces.NodeInterface;
-import no.hvl.dat110.util.LamportClock;
-import no.hvl.dat110.util.Util;
 
 /**
  * @author tdoy
@@ -96,10 +95,18 @@ public class MutualExclusion {
     private void multicastMessage(Message message, List<Message> activenodes) throws RemoteException {
 
         // iterate over the activenodes
+		for(Message m : activenodes){
+			// obtain a stub for each node from the registry
+			NodeInterface stub = Util.getProcessStub(m.getNodeIP(),m.getPort());
 
-        // obtain a stub for each node from the registry
+			// call onMutexRequestReceived()
+			stub.onMutexRequestReceived(m);
 
-        // call onMutexRequestReceived()
+		}
+
+
+
+
 
     }
 
@@ -196,6 +203,7 @@ public class MutualExclusion {
     public void onMutexAcknowledgementReceived(Message message) throws RemoteException {
 
         // add message to queueack
+		queueack.add(message);
 
     }
 
@@ -203,21 +211,36 @@ public class MutualExclusion {
     public void multicastReleaseLocks(Set<Message> activenodes) {
 
         // iterate over the activenodes
+		for(Message m : activenodes){
+			// obtain a stub for each node from the registry
+			NodeInterface stub = Util.getProcessStub(m.getNodeIP(),m.getPort());
+			// call releaseLocks()
+			try {
+				stub.releaseLocks();
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
 
-        // obtain a stub for each node from the registry
 
-        // call releaseLocks()
+
+
 
     }
 
     private boolean areAllMessagesReturned(int numvoters) throws RemoteException {
         // check if the size of the queueack is same as the numvoters
+		boolean same = false;
+		if(queueack.size() == numvoters){
+			same = true;
+		}
 
         // clear the queueack
+		queueack.clear();
 
         // return true if yes and false if no
 
-        return false;
+        return same;
     }
 
     private List<Message> removeDuplicatePeersBeforeVoting() {
