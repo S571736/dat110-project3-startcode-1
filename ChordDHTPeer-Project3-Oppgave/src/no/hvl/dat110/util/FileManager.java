@@ -116,17 +116,17 @@ public class FileManager {
         }
             */
         createReplicaFiles();
-        Random rnd= new Random();
-        int index= rnd.nextInt(Util.numReplicas-1);
+        Random rnd = new Random();
+        int index = rnd.nextInt(Util.numReplicas - 1);
 
         for (BigInteger replica : replicafiles) {
             NodeInterface succ = chordnode.findSuccessor(replica);
 
             succ.addKey(replica);
 
-            if(counter == index) {
+            if (counter == index) {
                 succ.saveFileContent(filename, replica, bytesOfFile, true);
-            }else {
+            } else {
                 succ.saveFileContent(filename, replica, bytesOfFile, false);
             }
             System.out.println(counter);
@@ -187,16 +187,24 @@ public class FileManager {
     public NodeInterface findPrimaryOfItem() {
 
         // Task: Given all the active peers of a file (activeNodesforFile()), find which is holding the primary copy
-
+        NodeInterface primary = null;
         // iterate over the activeNodesforFile
-
+        for (Message m : this.activeNodesforFile) {
+            if (m.isPrimaryServer()) {
+                try {
+                    primary = chordnode.findSuccessor(m.getNodeID());
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         // for each active peer (saved as Message)
 
         // use the primaryServer boolean variable contained in the Message class to check if it is the primary or not
 
         // return the primary
 
-        return null;
+        return primary;
     }
 
     /**
