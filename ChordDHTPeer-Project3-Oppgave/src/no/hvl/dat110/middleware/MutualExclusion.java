@@ -100,7 +100,7 @@ public class MutualExclusion {
             NodeInterface stub = Util.getProcessStub(m.getNodeIP(), m.getPort());
 
             // call onMutexRequestReceived()
-            stub.onMutexRequestReceived(m);
+            stub.onMutexRequestReceived(message);
 
         }
 
