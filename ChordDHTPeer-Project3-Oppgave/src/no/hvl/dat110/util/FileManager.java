@@ -160,17 +160,16 @@ public class FileManager {
 
         // generate the N replicas from the filename by calling createReplicaFiles()
         createReplicaFiles();
+
         // it means, iterate over the replicas of the file
         for (BigInteger replica : replicafiles) {
 
+            // for each replica, do findSuccessor(replica) that returns successor s.
             NodeInterface s = chordnode.findSuccessor(replica);
 
+            // get the metadata (Message) of the replica from the successor, s (i.e. active peer) of the file
             succinfo.add(s.getFilesMetadata(replica));
         }
-
-        // for each replica, do findSuccessor(replica) that returns successor s.
-
-        // get the metadata (Message) of the replica from the successor, s (i.e. active peer) of the file
 
         // save the metadata in the set succinfo.
 
