@@ -95,17 +95,14 @@ public class MutualExclusion {
     private void multicastMessage(Message message, List<Message> activenodes) throws RemoteException {
 
         // iterate over the activenodes
-		for(Message m : activenodes){
-			// obtain a stub for each node from the registry
-			NodeInterface stub = Util.getProcessStub(m.getNodeIP(),m.getPort());
+        for (Message m : activenodes) {
+            // obtain a stub for each node from the registry
+            NodeInterface stub = Util.getProcessStub(m.getNodeIP(), m.getPort());
 
-			// call onMutexRequestReceived()
-			stub.onMutexRequestReceived(m);
+            // call onMutexRequestReceived()
+            stub.onMutexRequestReceived(m);
 
-		}
-
-
-
+        }
 
 
     }
@@ -126,6 +123,13 @@ public class MutualExclusion {
         // caseid=0: Receiver is not accessing shared resource and does not want to (send OK to sender)
         // caseid=1: Receiver already has access to the resource (dont reply but queue the request)
         // caseid=2: Receiver wants to access resource but is yet to - compare own message clock to received message's clock
+        if (!CS_BUSY && !WANTS_TO_ENTER_CS) {
+            caseid = 0;
+        } else if (CS_BUSY) {
+            caseid = 1;
+        } else if (WANTS_TO_ENTER_CS) {
+            caseid = 2;
+        }
 
         // check for decision
         doDecisionAlgorithm(message, mutexqueue, caseid);
@@ -178,7 +182,7 @@ public class MutualExclusion {
                     stub.onMutexAcknowledgementReceived(message);
                 } else if (sendingClock == ownClock) {
                     // if clocks are the same, compare nodeIDs, the lowest wins
-                    if (message.getNodeID().compareTo(node.getNodeID()) > 0) {
+                    if (node.getNodeID().compareTo(message.getNodeID()) < 0) {
                         message.setAcknowledged(true);
                         node.onMutexRequestReceived(message);
                     } else {
@@ -203,40 +207,35 @@ public class MutualExclusion {
     public void onMutexAcknowledgementReceived(Message message) throws RemoteException {
 
         // add message to queueack
-		queueack.add(message);
+        queueack.add(message);
 
     }
 
     // multicast release locks message to other processes including self
-    public void multicastReleaseLocks(Set<Message> activenodes) {
+    public void multicastReleaseLocks(Set<Message> activenodes) throws RemoteException {
 
         // iterate over the activenodes
-		for(Message m : activenodes){
-			// obtain a stub for each node from the registry
-			NodeInterface stub = Util.getProcessStub(m.getNodeIP(),m.getPort());
-			// call releaseLocks()
-			try {
-				stub.releaseLocks();
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-		}
+        for (Message m : activenodes) {
+            // obtain a stub for each node from the registry
+            NodeInterface stub = Util.getProcessStub(m.getNodeIP(), m.getPort());
+            // call releaseLocks()
 
+            stub.releaseLocks();
 
-
+        }
 
 
     }
 
     private boolean areAllMessagesReturned(int numvoters) throws RemoteException {
         // check if the size of the queueack is same as the numvoters
-		boolean same = false;
-		if(queueack.size() == numvoters){
-			same = true;
-		}
+        boolean same = false;
+        if (queueack.size() == numvoters) {
+            same = true;
+        }
 
         // clear the queueack
-		queueack.clear();
+        queueack.clear();
 
         // return true if yes and false if no
 
