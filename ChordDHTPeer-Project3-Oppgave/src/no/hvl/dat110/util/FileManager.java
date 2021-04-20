@@ -183,18 +183,14 @@ public class FileManager {
      *
      * @return
      */
-    public NodeInterface findPrimaryOfItem() {
+    public NodeInterface findPrimaryOfItem() throws RemoteException {
 
         // Task: Given all the active peers of a file (activeNodesforFile()), find which is holding the primary copy
-        NodeInterface primary = null;
+
         // iterate over the activeNodesforFile
         for (Message m : this.activeNodesforFile) {
             if (m.isPrimaryServer()) {
-                try {
-                    primary = chordnode.findSuccessor(m.getNodeID());
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+                return chordnode.findSuccessor(m.getNodeID());
             }
         }
         // for each active peer (saved as Message)
@@ -203,7 +199,7 @@ public class FileManager {
 
         // return the primary
 
-        return primary;
+        return null;
     }
 
     /**

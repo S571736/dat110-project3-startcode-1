@@ -66,13 +66,13 @@ public class MutualExclusion {
         // start MutualExclusion algorithm
 
         // first, removeDuplicatePeersBeforeVoting. A peer can contain 2 replicas of a file. This peer will appear twice
-        List<Message> messages = removeDuplicatePeersBeforeVoting();
+        List<Message> m = removeDuplicatePeersBeforeVoting();
 
         // multicast the message to activenodes (hint: use multicastMessage)
-        multicastMessage(message, messages);
+        multicastMessage(message, m);
 
         // check that all replicas have replied (permission)
-        if (areAllMessagesReturned(messages.size())) {
+        if (areAllMessagesReturned(m.size())) {
 
             // if yes, acquireLock
             acquireLock();
@@ -114,7 +114,7 @@ public class MutualExclusion {
         // if message is from self, acknowledge, and call onMutexAcknowledgementReceived()
         if (message.getNodeIP().equals(node.getNodeName())) {
             message.setAcknowledged(true);
-            node.onMutexRequestReceived(message);
+            node.onMutexAcknowledgementReceived(message);
         }
 
         int caseid = -1;
@@ -179,12 +179,12 @@ public class MutualExclusion {
                 // compare clocks, the lowest wins
                 if (sendingClock < ownClock) {
                     message.setAcknowledged(true);
-                    stub.onMutexAcknowledgementReceived(message);
+                    stub.onMutexRequestReceived(message);
                 } else if (sendingClock == ownClock) {
                     // if clocks are the same, compare nodeIDs, the lowest wins
-                    if (node.getNodeID().compareTo(message.getNodeID()) < 0) {
+                    if (stub.getNodeID().compareTo(message.getNodeID()) < 0) {
                         message.setAcknowledged(true);
-                        node.onMutexRequestReceived(message);
+                        stub.onMutexRequestReceived(message);
                     } else {
                         queue.add(message);
                     }
@@ -217,10 +217,9 @@ public class MutualExclusion {
         // iterate over the activenodes
         for (Message m : activenodes) {
             // obtain a stub for each node from the registry
-            NodeInterface stub = Util.getProcessStub(m.getNodeIP(), m.getPort());
             // call releaseLocks()
+            Util.getProcessStub(m.getNodeIP(), m.getPort()).releaseLocks();
 
-            stub.releaseLocks();
 
         }
 
